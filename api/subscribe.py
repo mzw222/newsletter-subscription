@@ -70,21 +70,41 @@ def subscribe():
         if not email or not name:
             return jsonify({'message': 'Email and name are required'}), 400
 
-        # MailerLite API endpoint
-        api_url = 'https://api.mailerlite.com/api/v2/subscribers'
+        # Get API key and group ID from environment variables
+        api_key = os.environ.get('MAILERLITE_API_KEY')
+        group_id = os.environ.get('MAILERLITE_GROUP_ID')
+
+        # First, create the subscriber
         headers = {
-            'Content-Type': 'application/json',
-            'X-MailerLite-ApiKey': os.environ.get('MAILERLITE_API_KEY')
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
         }
+
+        # Create subscriber
+        create_url = 'https://connect.mailerlite.com/api/subscribers'
         payload = {
             'email': email,
             'name': name
         }
 
-        response = requests.post(api_url, json=payload, headers=headers)
+        response = requests.post(create_url, json=payload, headers=headers)
         
-        # MailerLite API returns 200 or 201 for successful operations
         if response.status_code in [200, 201]:
+            subscriber_data = response.json().get('data', {})
+            subscriber_id = subscriber_data.get('id')
+
+            # If we have both subscriber_id and group_id, add to group
+            if subscriber_id and group_id:
+                group_url = f'https://connect.mailerlite.com/api/subscribers/{subscriber_id}/groups/{group_id}'
+                group_response = requests.post(group_url, headers=headers)
+                
+                if group_response.status_code in [200, 201]:
+                    return jsonify({'message': 'Successfully subscribed and added to group!'}), 200
+                else:
+                    print(f"Group assignment failed: {group_response.text}")
+                    # Still return success since the subscription worked
+                    return jsonify({'message': 'Successfully subscribed!'}), 200
+            
             return jsonify({'message': 'Successfully subscribed!'}), 200
         else:
             error_message = 'Subscription failed'
