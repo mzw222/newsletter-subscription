@@ -10,6 +10,8 @@ def subscribe():
         data = request.json
         email = data.get('email')
         name = data.get('name')
+        
+        print(f"Processing subscription for: {email}")  # Debug logging
 
         if not email or not name:
             return jsonify({'message': 'Email and name are required'}), 400

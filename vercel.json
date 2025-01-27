@@ -8,8 +8,12 @@
     ],
     "routes": [
         {
+            "src": "/api/subscribe",
+            "dest": "api/subscribe.py"
+        },
+        {
             "src": "/(.*)",
-            "dest": "/api/subscribe.py"
+            "dest": "api/subscribe.py"
         }
     ]
 }
