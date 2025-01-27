@@ -1,2 +1,3 @@
 flask==2.0.1
-mailerlite==1.0.0
+mailerlite==0.1.10
+python-dotenv==1.0.0
