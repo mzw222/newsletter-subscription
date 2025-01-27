@@ -83,10 +83,18 @@ def subscribe():
 
         response = requests.post(api_url, json=payload, headers=headers)
         
-        if response.status_code == 200:
+        # MailerLite API returns 200 or 201 for successful operations
+        if response.status_code in [200, 201]:
             return jsonify({'message': 'Successfully subscribed!'}), 200
         else:
-            return jsonify({'message': f'Subscription failed: {response.text}'}), response.status_code
+            error_message = 'Subscription failed'
+            try:
+                error_data = response.json()
+                if isinstance(error_data, dict) and 'error' in error_data:
+                    error_message = error_data['error']
+            except:
+                pass
+            return jsonify({'message': error_message}), 400
 
     except Exception as e:
         print(f"Error: {str(e)}")
