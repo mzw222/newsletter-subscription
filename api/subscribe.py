@@ -8,51 +8,97 @@ app = Flask(__name__)
 def home():
     return '''
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Newsletter Subscription</title>
         <style>
-            body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; }
-            .form-group { margin-bottom: 15px; }
-            input { width: 100%; padding: 8px; margin: 5px 0; }
-            button { background: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; }
-            .message { padding: 10px; margin-top: 10px; border-radius: 4px; }
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+            }
+            button {
+                background-color: #007bff;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                cursor: pointer;
+            }
+            .message {
+                padding: 10px;
+                margin-top: 10px;
+                border-radius: 4px;
+            }
+            .success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            .error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
         </style>
     </head>
     <body>
-        <h1>Subscribe to Our Newsletter</h1>
+        <h1>Subscribe to Mav's letter (* .ˬ.)"</h1>
         <form id="subscribeForm">
             <div class="form-group">
-                <label>Name:</label>
-                <input type="text" id="name" required>
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
             </div>
             <div class="form-group">
-                <label>Email:</label>
-                <input type="email" id="email" required>
+                <label for="email">Email (to receive the letters)</label>
+                <input type="email" id="email" name="email" required>
             </div>
-            <button type="submit">Subscribe</button>
+            <button type="submit">Gooo!</button>
         </form>
         <div id="message"></div>
 
         <script>
             document.getElementById('subscribeForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const messageDiv = document.getElementById('message');
+                
                 try {
                     const response = await fetch('/api/subscribe', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
                         body: JSON.stringify({
                             name: document.getElementById('name').value,
                             email: document.getElementById('email').value
                         })
                     });
+
                     const data = await response.json();
-                    const messageDiv = document.getElementById('message');
-                    messageDiv.textContent = data.message;
-                    messageDiv.className = 'message ' + (response.ok ? 'success' : 'error');
-                    if (response.ok) document.getElementById('subscribeForm').reset();
+                    
+                    if (response.ok) {
+                        messageDiv.className = 'message success';
+                        messageDiv.textContent = 'Successfully subscribed!';
+                        document.getElementById('subscribeForm').reset();
+                    } else {
+                        messageDiv.className = 'message error';
+                        messageDiv.textContent = data.message || 'Subscription failed';
+                    }
                 } catch (error) {
-                    document.getElementById('message').textContent = 'An error occurred. Please try again.';
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = 'An error occurred. Please try again.';
                 }
             });
         </script>
